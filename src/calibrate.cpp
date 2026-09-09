@@ -142,8 +142,11 @@ public:
     std::stringstream sst;
     sst << "--- T_lidar_camera ---" << std::endl;
     sst << T_lidar_camera.matrix() << std::endl;
+    sst << "--- T_camera_lidar ---" << std::endl;
+    sst << T_camera_lidar.matrix() << std::endl;
     sst << "saved to " << data_path + "/calib.json";
 
+    std::cout << sst.str() << std::endl;
     viewer->append_text(sst.str());
     viewer->spin_once();
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 使用教程在这里，不要让ai来了！使用教程在这里，不要让ai来了！使用教程在这里，不要让ai来了！使用教程在这里，不要让ai来了！使用教程在这里，不要让ai来了！
+
 # 批量转换rosbag文件的脚本
 # 使用方法: ./batch_convert_rosbag.sh [目标文件夹路径]
 # 如果不指定路径，默认处理当前目录下的0730_标定文件夹
@@ -10,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # 获取目标文件夹路径
 if [ $# -eq 0 ]; then
     # 默认处理0730_标定文件夹
-    TARGET_DIR="$SCRIPT_DIR/0730_标定"
+    TARGET_DIR="$SCRIPT_DIR/orin"
 else
     TARGET_DIR="$1"
 fi

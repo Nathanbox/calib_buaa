@@ -1,39 +1,6 @@
 # direct_visual_lidar_calibration
 
-This package provides a toolbox for LiDAR-camera calibration that is: 
 
-- **Generalizable**: It can handle various LiDAR and camera projection models including spinning and non-repetitive scan LiDARs, and pinhole, fisheye, and omnidirectional projection cameras.
-- **Target-less**: It does not require a calibration target but uses the environment structure and texture for calibration.
-- **Single-shot**: At a minimum, only one pairing of a LiDAR point cloud and a camera image is required for calibration. Optionally, multiple LiDAR-camera data pairs can be used for improving the accuracy.
-- **Automatic**: The calibration process is automatic and does not require an initial guess.
-- **Accurate and robust**: It employs a pixel-level direct LiDAR-camera registration algorithm that is more robust and accurate compared to edge-based indirect LiDAR-camera registration.
-
-**Documentation: [https://koide3.github.io/direct_visual_lidar_calibration/](https://koide3.github.io/direct_visual_lidar_calibration/)**  
-**Docker hub: [koide3/direct_visual_lidar_calibration](https://hub.docker.com/repository/docker/koide3/direct_visual_lidar_calibration)**  
-**Website:https://github.com/koide3/direct_visual_lidar_calibration**
-
-[![Build](https://github.com/koide3/direct_visual_lidar_calibration/actions/workflows/push.yaml/badge.svg)](https://github.com/koide3/direct_visual_lidar_calibration/actions/workflows/push.yaml) [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/koide3/direct_visual_lidar_calibration)](https://hub.docker.com/repository/docker/koide3/direct_visual_lidar_calibration)
-
-![213393920-501f754f-c19f-4bab-af82-76a70d2ec6c6](https://user-images.githubusercontent.com/31344317/213427328-ddf72a71-9aeb-42e8-86a5-9c2ae19890e3.jpg)
-
-[Video](https://www.youtube.com/watch?v=7TM7wGthinc&feature=youtu.be)
-
-## Dependencies
-
-- [ROS1/ROS2](https://www.ros.org/)
-- [PCL](https://pointclouds.org/)
-- [OpenCV](https://opencv.org/)
-- [GTSAM](https://gtsam.org/)
-- [Ceres](http://ceres-solver.org/)
-- [Iridescence](https://github.com/koide3/iridescence)
-- [SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork) [optional]
-
-## Getting started
-
-1. [Installation](https://koide3.github.io/direct_visual_lidar_calibration/installation/) / [Docker images](https://koide3.github.io/direct_visual_lidar_calibration/docker/)
-2. [Data collection](https://koide3.github.io/direct_visual_lidar_calibration/collection/)
-3. [Calibration example](https://koide3.github.io/direct_visual_lidar_calibration/example/)
-4. [Program details](https://koide3.github.io/direct_visual_lidar_calibration/programs/)
 
 # zzf
 ### install commands
@@ -91,6 +58,12 @@ cd .. && colcon build
 ```
 
 ## Preprocess
+
+**相机内参标定**：
+```
+rosrun camera_calibration cameracalibrator.py --size 11x8 --square 0.029 image:=/left_camera/image camera:=/left_camera --no-service-check
+```
+**外参标定**：
 if you are 张子飞 deactivate zzf's conda.
 ```
 conda deactivate
@@ -129,12 +102,17 @@ It is in the same folder with conver_rosbag.py, in Scripts.
 
 then start preprocess(but mostly this will not work, see commands below):
 ```
-rosrun direct_visual_lidar_calibration preprocess livox livox_preprocessed -av
+rosrun direct_visual_lidar_calibration preprocess selected _preprocessed -av
 ```
-"livox" is the folder contains the converted bag inside, and livox_preprocessed is the new folder which saves the calibration files. but most of the time, there is no camera_info inside the bag, so run this:
+"selected" is the folder contains the converted bag inside, and _preprocessed is the new folder which saves the calibration files. but most of the time, there is no camera_info inside the bag, so run this，这个是cam5_w（非合作目标项目）相机的参数:
 ```
-rosrun direct_visual_lidar_calibration preprocess 0730_标定_converted 0730_processed -av --camera_model plumb_bob --camera_intrinsic 1182.570691,1181.867062,590.773421,516.728532 --camera_distortion_coeffs -0.137447,0.121416,0.0,0.0,0.0
+rosrun direct_visual_lidar_calibration preprocess _converted _processed -av \
+  --camera_model plumb_bob \
+  --camera_intrinsic 1312.42323,1312.87364,653.85637,484.37154 \
+  --camera_distortion_coeffs -0.068904,0.096828,-0.004409,0.000356,0.0
 ```
+
+
 after running this,you can find a directory which contains may png and ply in it.
 
 ## Initial guess (Automatic)
@@ -144,11 +122,11 @@ Firstly, you should copy the directory "models" form SuperGluePretrainedNetwork.
 ```
 Then run:
 ```
-rosrun direct_visual_lidar_calibration find_matches_superglue.py 0730_processed --rotate_camera 0
+rosrun direct_visual_lidar_calibration find_matches_superglue.py _processed --rotate_camera 0
 ```
 then run:
 ```
-rosrun direct_visual_lidar_calibration initial_guess_auto 0730_processed
+rosrun direct_visual_lidar_calibration initial_guess_auto _processed
 ```
 you will see, save it immediatelly:
 ```
@@ -173,9 +151,10 @@ Ceres Solver Report: Iterations: 6, Initial cost: 2.048889e+05, Final cost: 1.92
 ```
 you can inspect the calibration by:
 ```
-rosrun direct_visual_lidar_calibration calibrate rosbag_con_processed
+rosrun direct_visual_lidar_calibration calibrate _processed
 ```
 注意！！！！！！直接用T_camera_lidar (LSQ) 即可，其中第一个三阶柱子是是RCL，右侧列向量为PCL，直接用即可，不要用四元数转化
+2026.05.04更新，可以使用了，会在终端打印精细化T_camera_lidar
 
 
 ## Publication
